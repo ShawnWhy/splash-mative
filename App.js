@@ -1275,7 +1275,7 @@ const mix = function(){
       }).start()
       Animated.timing(
         splatterTransformLeft[i],{
-          toValue:rand4*100,
+          toValue:rand4*20,
           duration:200,
           useNativeDriver:true, 
     
@@ -1283,7 +1283,7 @@ const mix = function(){
         }).start()
         Animated.timing(
           splatterTransformTop[i],{
-            toValue:rand3*100,
+            toValue:rand3*20,
             duration:200,
             useNativeDriver:true, 
       
