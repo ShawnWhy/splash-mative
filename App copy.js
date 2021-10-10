@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 
-import { Animated, StyleSheet, Text, View, Button, Pressable } from 'react-native';
+import { Animated, StyleSheet, Text, View, Button } from 'react-native';
 import { useLayoutEffect } from 'react/cjs/react.development';
 
 export default function App() {
@@ -1257,7 +1257,7 @@ const returnTransforms=function(){
               duration:20,
               useNativeDriver:true, 
             }).start()
-
+            
         for(j=0;j<11;j++){
           Animated.timing(
             smallSplatters[i][j]["power"],{
@@ -1287,7 +1287,7 @@ const mix = function(){
       }).start()
       Animated.timing(
         splatterTransformLeft[i],{
-          toValue:rand4*10,
+          toValue:rand4*20,
           duration:200,
           useNativeDriver:true, 
     
@@ -1295,7 +1295,7 @@ const mix = function(){
         }).start()
         Animated.timing(
           splatterTransformTop[i],{
-            toValue:rand3*10,
+            toValue:rand3*20,
             duration:200,
             useNativeDriver:true, 
       
@@ -1745,7 +1745,17 @@ else{
     <View style={styles.Canvass} 
     onTouchMove ={(e)=>{returnBullet(e)}}
     >
-         <Animated.View style={[styles.largeSplatter, 
+    </View>
+   
+    <Animated.View ref={bullet} onTouchStart = {()=>readyBullet()} onStartShouldSetResponder={() => true}
+    style={bulletState === "on" ? [styles.bulletReady, {transform:[{ translateY: shoot},{rotate:rotateBullet},]},{backgroundColor:restbulletColor}] : [styles.bulletnot, {transform:[{translateX:bulletAutoReady}]}]}  top={bulletheight} left={bulletleft} pointerEvents={bulletState === "on" ? "none":"auto"}></Animated.View>
+    <View style={styles.Magazine} ref={magazine} onLayout={(e)=>calcMagazineTop(e)} onTouchMove={(e)=>moveBullet(e)} onTouchEndCapture={(e)=>{returnBullet(e)}}>
+   
+    <View style={fakebullet==="on"? [styles.bullet, {display:"auto"}] : [styles.bullet, {display:"none"}]}></View>
+    <View style={styles.bullet}></View>
+    </View>
+    
+    <Animated.View style={[styles.largeSplatter, 
     {
       transform:[{scale: bigSplatter[0]},{translateX:splatterTransformLeft[0]},{translateY:splatterTransformTop[0]}],
       
@@ -2905,59 +2915,29 @@ else{
        ]}>
        
        </Animated.View>
-    </View>
-   
-    <Animated.View ref={bullet} onTouchStart = {()=>readyBullet()} onStartShouldSetResponder={() => true}
-    style={bulletState === "on" ? [styles.bulletReady, {transform:[{ translateY: shoot},{rotate:rotateBullet},]},{backgroundColor:restbulletColor}] : [styles.bulletnot, {transform:[{translateX:bulletAutoReady}]}]}  top={bulletheight} left={bulletleft} pointerEvents={bulletState === "on" ? "none":"auto"}></Animated.View>
-    <View style={styles.Magazine} ref={magazine} onLayout={(e)=>calcMagazineTop(e)} onTouchMove={(e)=>moveBullet(e)} onTouchEndCapture={(e)=>{returnBullet(e)}}>
-   
-    <View style={fakebullet==="on"? [styles.bullet, {display:"auto"}] : [styles.bullet, {display:"none"}]}></View>
-    <View style={styles.bullet}></View>
-    </View>
-    
- 
        
-<Pressable
+<Button
 onPress={()=>clear()}
 
-style={styles.clearButton}
-
+style={{backgroundColor:"blue"},{position:"absolute"},{left:100}}
+title="Clear!"
 >
-  <Text>Clear!</Text>
 
-</Pressable>
+</Button>
 
-<Pressable
+<Button
 onPress={()=>mix()}
 
-style={styles.mixButton}
+style={{backgroundColor:"orange"},{position:"absolute"},{left:150}}
+title="mix!"
 >
-<Text>Mix!</Text>
-</Pressable>
+
+</Button>
    </View>
   );
 }
 
 const styles = StyleSheet.create({
-clearButton:{
-  backgroundColor:"orange",
-  padding:4,
-  borderRadius:2,
-  position:"absolute",
-  left:50,
-  top:100,
-
-},
-mixButton:{
-  backgroundColor:"blue",
-  padding:4,
-  borderRadius:2,
-  position:"absolute",
-  left:100,
-  top:50
-
-},
-
 smallSplatter:{
   width:20,
   height:20,
