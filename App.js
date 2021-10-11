@@ -1,9 +1,43 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useLayoutEffect} from 'react';
 
-import { Animated, StyleSheet, Text, View, Button, Pressable } from 'react-native';
-import { useLayoutEffect } from 'react/cjs/react.development';
+import { Animated, StyleSheet, Text, View, Button, Pressable, Share } from 'react-native';
+// import { useLayoutEffect } from 'react/cjs/react.development';
+import ViewShot from "react-native-view-shot";
+import { captureRef } from "react-native-view-shot";
+
+
 
 export default function App() {
+  // var domtoimage = require('dom-to-image');
+  // var FileSaver = require('file-saver');
+
+const [screenMode, setScreenMode]=useState(
+  "day"
+
+)
+
+// useLayoutEffect(()=>{
+//   refs.viewShot.capture().then(uri => {
+//     console.log("do something with ", uri);
+//   });
+
+// })
+
+
+  const download =function(){
+    // console.log(canvassBoard.current)
+    captureRef(canvassBoard, {
+      format: "jpg",
+      quality: 1.0,
+      // result:"base64"
+    }).then(
+      uri => Share.share({title:"background", url:uri}),
+      error => console.error("Oops, snapshot failed", error)
+      
+    );
+
+    
+}
 
   const [bulletPowerArray, setbulletPowerArray]= useState(
     {
@@ -1272,22 +1306,21 @@ const returnTransforms=function(){
 
 //this mixes up the position and size of the splatters
 const mix = function(){
-  for(i=0;i<countNumber+1;i++){
+  for(i=0;i<countNumber;i++){
     // setBulletLeftArray(...bulletLeftArray, ) bulletLeftArray[i]
-    var rand = Math.random()*4+1
-    var rand3 = Math.random()*4+1
-    var rand4 = Math.random()*4+1
+    var rand = Math.random()*6+1
+    var rand3 = Math.random()*6+1
+    var rand4 = Math.random()*4-4
     Animated.timing(
       bigSplatter[i],{
         toValue:rand,
         duration:200,
         useNativeDriver:true, 
-  
-  
       }).start()
+
       Animated.timing(
         splatterTransformLeft[i],{
-          toValue:rand4*10,
+          toValue:rand4*20,
           duration:200,
           useNativeDriver:true, 
     
@@ -1295,7 +1328,7 @@ const mix = function(){
         }).start()
         Animated.timing(
           splatterTransformTop[i],{
-            toValue:rand3*10,
+            toValue:rand3*20,
             duration:200,
             useNativeDriver:true, 
       
@@ -1322,7 +1355,7 @@ const mix = function(){
 const clear = function(){
 setCount(0)
 returnTransforms();
-console.log(splatterColorArray);
+// console.log(splatterColorArray);
 
 var tempsplattercolors = splatterColorArray;
 for(i=0;i<11;i++){
@@ -1392,6 +1425,7 @@ setBulletLeftArray({
 
   const bullet = useRef();
   const magazine = useRef();
+  const canvassBoard = useRef();
   const [bulletDrag, setBulletDrag]=useState(
       "off"
   )
@@ -1400,6 +1434,8 @@ setBulletLeftArray({
   //automatically return bulltet in original location
   //expand bigsplatter
   const autoBulletReady = function(bulletPower){
+    setbulletLeft(155);
+    setbulletHeight("80%");
     temptpowerArray = bulletPowerArray;
     temptpowerArray[countNumber]= bulletPower;
     setbulletPowerArray(temptpowerArray);
@@ -1566,7 +1602,7 @@ const shootbullet=function(bulletPower){
     }).start();
 
     setTimeout(() => {
-    console.log("bulletPower")
+    // console.log("bulletPower")
 
     // console.log(bulletPower)
     autoBulletReady(bulletPower);
@@ -1591,7 +1627,7 @@ new Animated.Value(0)
 ).current;
 
 const turnBullet = function(){
-  console.log("turn")
+  // console.log("turn")
 
   Animated.spring(
     rotateBullet,{
@@ -1698,7 +1734,7 @@ const readyBullet = function(){
 
     else{
       clear();
-      console.log(splatterColorArray)
+      // console.log(splatterColorArray)
     }
 
 }
@@ -1710,8 +1746,8 @@ const returnBullet = function(e){
   //setting bullet shoot speed
   var bulletPower= 1; 
   bulletPower= 1-(moveY-magazineheight)/200
-  console.log(magazineheight)
-  console.log(moveY) 
+  // console.log(magazineheight)
+  // console.log(moveY) 
   if(moveY-60<magazineheight){
    
   setbulletHeight(moveY-40)
@@ -1742,8 +1778,8 @@ else{
 
   return (
     <View style={styles.Body}>
-    <View style={styles.Canvass} 
-    onTouchMove ={(e)=>{returnBullet(e)}}
+    <View style={screenMode ==="day"? [styles.Canvass,{backgroundColor:"white"}]:[styles.Canvass,{backgroundColor:"black"}]} ref={canvassBoard}
+    // onTouchMove ={(e)=>{returnBullet(e)}}
     >
          <Animated.View style={[styles.largeSplatter, 
     {
@@ -2934,26 +2970,86 @@ style={styles.mixButton}
 >
 <Text>Mix!</Text>
 </Pressable>
+
+<Pressable
+onPress={()=>download()}
+
+style={styles.downloadButton}
+>
+<Text>download</Text>
+</Pressable>
+
+<View
+style={styles.lightButton}
+onTouchStart={()=>screenMode==="day"? setScreenMode("night"):setScreenMode("day")}
+>
+<View style={screenMode==="day"? styles.shadow:styles.shadowCover}></View>
+</View>
+
+{/* <ViewShot ref="viewShot" options={{ format: "jpg", quality: 0.9 }}>
+        <Text>...Something to rasterize...</Text>
+      </ViewShot> */}
    </View>
   );
 }
 
 const styles = StyleSheet.create({
+
+  lightButton:{
+    height:40,
+    width:40,
+    borderRadius:20,
+    backgroundColor:"gold",
+    top:200,
+    left:25,
+    overflow:"hidden",
+    position:"absolute"
+  },
+
+  shadow:{
+    height:40,
+    width:40,
+    borderRadius:20,
+    backgroundColor:"black",
+    left:"-100%",
+    // position:'absolute',
+
+
+  },
+
+  shadowCover:{
+    height:40,
+    width:40,
+    borderRadius:20,
+    backgroundColor:"black",
+    left:"20%",
+    // position:'absolute',
+
+  },
 clearButton:{
   backgroundColor:"orange",
   padding:4,
-  borderRadius:2,
+  borderRadius:4,
   position:"absolute",
-  left:50,
+  left:20,
   top:100,
+
+},
+downloadButton:{
+  backgroundColor:"red",
+  padding:4,
+  borderRadius:4,
+  position:"absolute",
+  left:20,
+  top:150,
 
 },
 mixButton:{
   backgroundColor:"blue",
   padding:4,
-  borderRadius:2,
+  borderRadius:4,
   position:"absolute",
-  left:100,
+  left:20,
   top:50
 
 },
@@ -3040,10 +3136,14 @@ smallSplatter:{
   Canvass:{
       
       height:"90%",
-      backgroundColor:"white"
+      // backgroundColor:"white"
   },
   Body:{
       height:"100%",
       flexDirection:"column"
-  }
+  },
+
+ 
+
+
 });
